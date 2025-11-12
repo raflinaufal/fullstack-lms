@@ -14,7 +14,12 @@ class QuestionResource extends JsonResource
             'exam_id' => $this->exam_id,
             'question_text' => $this->question_text,
             'stimulus_text' => $this->stimulus_text,
-            'stimulus_image' => $this->stimulus_image,
+            'stimulus_image' => $this->stimulus_image
+                ? url('storage/' . $this->stimulus_image)
+                : null,
+            'question_after_image' => $this->question_after_image
+                ? url('storage/' . $this->question_after_image)
+                : null,
             'correct_answer' => $this->correct_answer,
             'explanation' => $this->explanation,
             'created_at' => $this->created_at,
@@ -30,6 +35,7 @@ class QuestionResource extends JsonResource
                     ];
                 });
             }),
+            'exam' => $this->whenLoaded('exam'),
         ];
     }
 }

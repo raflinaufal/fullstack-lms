@@ -2,8 +2,9 @@
 
 import { ReactNode, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/redux/store";
+import { logout as logoutAction } from "@/lib/redux/slices/authSlice";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -26,16 +27,20 @@ interface AdminLayoutProps {
 function AdminLayoutContent({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
-  const [logout] = useLogoutMutation();
+  const [logoutMutation] = useLogoutMutation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await logout().unwrap();
-      router.push("/login");
+      await logoutMutation().unwrap();
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error("Logout API failed:", error);
+    } finally {
+      // Always dispatch logout and redirect, even if API fails
+      dispatch(logoutAction());
+      router.push("/login");
     }
   };
 

@@ -11,6 +11,7 @@ use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class QuestionController extends Controller
 {
@@ -40,7 +41,9 @@ class QuestionController extends Controller
         }
 
         $questions = $query->get();
-        return QuestionResource::collection($questions);
+        return response()->json([
+            'data' => QuestionResource::collection($questions)
+        ]);
     }
 
     public function show($id)
@@ -55,8 +58,8 @@ class QuestionController extends Controller
             'exam_id' => 'required|exists:exams,id',
             'question_text' => 'required|string',
             'stimulus_text' => 'nullable|string',
-            'stimulus_image' => 'nullable|string',
-            'question_after_image' => 'nullable|string',
+            'stimulus_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'question_after_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'correct_answer' => 'required|string',
             'explanation' => 'nullable|string',
             'options' => 'required|array|min:2',
@@ -76,6 +79,24 @@ class QuestionController extends Controller
             $questionData = $validator->validated();
             $options = $questionData['options'];
             unset($questionData['options']);
+
+            // Handle stimulus_image upload
+            if ($request->hasFile('stimulus_image')) {
+                $stimulusImage = $request->file('stimulus_image');
+                $stimulusImagePath = $stimulusImage->store('questions/stimulus', 'public');
+                $questionData['stimulus_image'] = $stimulusImagePath;
+            } else {
+                unset($questionData['stimulus_image']);
+            }
+
+            // Handle question_after_image upload
+            if ($request->hasFile('question_after_image')) {
+                $afterImage = $request->file('question_after_image');
+                $afterImagePath = $afterImage->store('questions/after', 'public');
+                $questionData['question_after_image'] = $afterImagePath;
+            } else {
+                unset($questionData['question_after_image']);
+            }
 
             $question = Question::create($questionData);
 
@@ -111,8 +132,10 @@ class QuestionController extends Controller
             'exam_id' => 'required|exists:exams,id',
             'question_text' => 'required|string',
             'stimulus_text' => 'nullable|string',
-            'stimulus_image' => 'nullable|string',
-            'question_after_image' => 'nullable|string',
+            'stimulus_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'question_after_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_stimulus_image' => 'nullable|boolean',
+            'remove_after_image' => 'nullable|boolean',
             'correct_answer' => 'required|string',
             'explanation' => 'nullable|string',
             'options' => 'required|array|min:2',
@@ -133,6 +156,50 @@ class QuestionController extends Controller
             $questionData = $validator->validated();
             $options = $questionData['options'];
             unset($questionData['options']);
+            unset($questionData['remove_stimulus_image']);
+            unset($questionData['remove_after_image']);
+
+            // Handle stimulus_image removal
+            if ($request->input('remove_stimulus_image') === true || $request->input('remove_stimulus_image') === 'true') {
+                if ($question->stimulus_image && Storage::disk('public')->exists($question->stimulus_image)) {
+                    Storage::disk('public')->delete($question->stimulus_image);
+                }
+                $questionData['stimulus_image'] = null;
+            }
+
+            // Handle stimulus_image upload
+            if ($request->hasFile('stimulus_image')) {
+                // Delete old image if exists
+                if ($question->stimulus_image && Storage::disk('public')->exists($question->stimulus_image)) {
+                    Storage::disk('public')->delete($question->stimulus_image);
+                }
+                $stimulusImage = $request->file('stimulus_image');
+                $stimulusImagePath = $stimulusImage->store('questions/stimulus', 'public');
+                $questionData['stimulus_image'] = $stimulusImagePath;
+            } else {
+                unset($questionData['stimulus_image']);
+            }
+
+            // Handle question_after_image removal
+            if ($request->input('remove_after_image') === true || $request->input('remove_after_image') === 'true') {
+                if ($question->question_after_image && Storage::disk('public')->exists($question->question_after_image)) {
+                    Storage::disk('public')->delete($question->question_after_image);
+                }
+                $questionData['question_after_image'] = null;
+            }
+
+            // Handle question_after_image upload
+            if ($request->hasFile('question_after_image')) {
+                // Delete old image if exists
+                if ($question->question_after_image && Storage::disk('public')->exists($question->question_after_image)) {
+                    Storage::disk('public')->delete($question->question_after_image);
+                }
+                $afterImage = $request->file('question_after_image');
+                $afterImagePath = $afterImage->store('questions/after', 'public');
+                $questionData['question_after_image'] = $afterImagePath;
+            } else {
+                unset($questionData['question_after_image']);
+            }
 
             $question->update($questionData);
 
@@ -165,6 +232,15 @@ class QuestionController extends Controller
     public function destroy($id)
     {
         $question = Question::findOrFail($id);
+
+        // Delete associated images
+        if ($question->stimulus_image && Storage::disk('public')->exists($question->stimulus_image)) {
+            Storage::disk('public')->delete($question->stimulus_image);
+        }
+        if ($question->question_after_image && Storage::disk('public')->exists($question->question_after_image)) {
+            Storage::disk('public')->delete($question->question_after_image);
+        }
+
         $question->delete();
 
         return response()->json([

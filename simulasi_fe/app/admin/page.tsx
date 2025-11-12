@@ -10,9 +10,16 @@ import { BookOpen, FileQuestion, Users, BarChart3 } from "lucide-react";
 export default function AdminDashboard() {
   const { data: classesData, isLoading: classesLoading } = useGetClassesQuery();
   const { data: examsData, isLoading: examsLoading } = useGetExamsQuery();
-  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery();
-  const { data: questionsData, isLoading: questionsLoading } =
-    useGetQuestionsQuery({});
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    error: usersError,
+  } = useGetUsersQuery();
+  const {
+    data: questionsData,
+    isLoading: questionsLoading,
+    error: questionsError,
+  } = useGetQuestionsQuery({});
 
   // Extract arrays from wrapped response - ensure they are arrays
   const classes = Array.isArray(classesData?.data) ? classesData.data : [];

@@ -177,7 +177,7 @@ export const adminApi = baseApi.injectEndpoints({
     }),
     createQuestion: builder.mutation<
       { message: string; data: Question },
-      CreateQuestionRequest
+      FormData
     >({
       query: (body) => ({
         url: "/admin/questions",
@@ -187,11 +187,11 @@ export const adminApi = baseApi.injectEndpoints({
     }),
     updateQuestion: builder.mutation<
       { message: string; data: Question },
-      { id: number; data: CreateQuestionRequest }
+      { id: number; data: FormData }
     >({
       query: ({ id, data }) => ({
         url: `/admin/questions/${id}`,
-        method: "PUT",
+        method: "POST", // Use POST for multipart form data with _method=PUT
         body: data,
       }),
     }),

@@ -93,7 +93,6 @@ export default function QuestionsPage() {
     question_text: "",
     stimulus_text: "",
     stimulus_image: "",
-    question_after_image: "",
     correct_answer: "",
     explanation: "",
     options: [
@@ -103,6 +102,9 @@ export default function QuestionsPage() {
       { option_label: "D", option_text: "" },
     ],
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [removeImage, setRemoveImage] = useState(false);
 
   const handleOpenDialog = (question?: Question) => {
     if (question) {
@@ -112,7 +114,6 @@ export default function QuestionsPage() {
         question_text: question.question_text,
         stimulus_text: question.stimulus_text || "",
         stimulus_image: question.stimulus_image || "",
-        question_after_image: question.question_after_image || "",
         correct_answer: question.correct_answer,
         explanation: question.explanation || "",
         options:
@@ -125,6 +126,8 @@ export default function QuestionsPage() {
                 { option_label: "D", option_text: "" },
               ],
       });
+      // Set existing image preview - langsung gunakan URL dari API
+      setImagePreview(question.stimulus_image || "");
     } else {
       setEditingQuestion(null);
       setFormData({
@@ -132,7 +135,6 @@ export default function QuestionsPage() {
         question_text: "",
         stimulus_text: "",
         stimulus_image: "",
-        question_after_image: "",
         correct_answer: "",
         explanation: "",
         options: [
@@ -142,30 +144,62 @@ export default function QuestionsPage() {
           { option_label: "D", option_text: "" },
         ],
       });
+      setImagePreview("");
     }
+    setImageFile(null);
+    setRemoveImage(false);
     setIsDialogOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
-        exam_id: parseInt(formData.exam_id),
-        question_text: formData.question_text,
-        stimulus_text: formData.stimulus_text || undefined,
-        stimulus_image: formData.stimulus_image || undefined,
-        question_after_image: formData.question_after_image || undefined,
-        correct_answer: formData.correct_answer,
-        explanation: formData.explanation || undefined,
-        options: formData.options.filter(
-          (opt) => opt.option_text.trim() !== ""
-        ),
-      };
+      const formDataToSend = new FormData();
+
+      // Add basic fields
+      formDataToSend.append("exam_id", formData.exam_id);
+      formDataToSend.append("question_text", formData.question_text);
+      formDataToSend.append("correct_answer", formData.correct_answer);
+
+      if (formData.stimulus_text) {
+        formDataToSend.append("stimulus_text", formData.stimulus_text);
+      }
+      if (formData.explanation) {
+        formDataToSend.append("explanation", formData.explanation);
+      }
+
+      // Add image file
+      if (imageFile) {
+        formDataToSend.append("stimulus_image", imageFile);
+      }
+
+      // Add remove flag for update
+      if (editingQuestion) {
+        formDataToSend.append("_method", "PUT");
+        if (removeImage) {
+          formDataToSend.append("remove_stimulus_image", "true");
+        }
+      }
+
+      // Add options
+      const filteredOptions = formData.options.filter(
+        (opt) => opt.option_text.trim() !== ""
+      );
+      filteredOptions.forEach((option, index) => {
+        formDataToSend.append(
+          `options[${index}][option_label]`,
+          option.option_label
+        );
+        formDataToSend.append(
+          `options[${index}][option_text]`,
+          option.option_text
+        );
+      });
 
       if (editingQuestion) {
         await updateQuestion({
           id: editingQuestion.id,
-          data: payload,
+          data: formDataToSend,
         }).unwrap();
         toast({
           title: "Berhasil",
@@ -173,7 +207,7 @@ export default function QuestionsPage() {
           variant: "success",
         });
       } else {
-        await createQuestion(payload).unwrap();
+        await createQuestion(formDataToSend).unwrap();
         toast({
           title: "Berhasil",
           description: "Soal berhasil dibuat",
@@ -209,6 +243,25 @@ export default function QuestionsPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setRemoveImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    setRemoveImage(true);
   };
 
   const updateOption = (index: number, field: string, value: string) => {
@@ -444,6 +497,34 @@ export default function QuestionsPage() {
                   required
                   rows={3}
                 />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="question_image">Gambar Soal</Label>
+                <Input
+                  id="question_image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                {imagePreview && !removeImage && (
+                  <div className="relative mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview gambar soal"
+                      className="h-auto max-w-full border rounded max-h-60"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="grid gap-2">

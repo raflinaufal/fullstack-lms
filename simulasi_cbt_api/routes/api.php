@@ -76,6 +76,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/questions', [QuestionController::class, 'index']);
     Route::post('/questions', [QuestionController::class, 'store']);
     Route::put('/questions/{id}', [QuestionController::class, 'update']);
+    Route::post('/questions/{id}', [QuestionController::class, 'update']); // For multipart form data
     Route::delete('/questions/{id}', [QuestionController::class, 'destroy']);
 
     // Users management
