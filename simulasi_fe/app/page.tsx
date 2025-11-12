@@ -9,7 +9,6 @@ import { logout } from "@/lib/redux/slices/authSlice";
 import { useLogoutMutation } from "@/lib/redux/api/authApi";
 import { useGetClassesQuery } from "@/lib/redux/api/examsApi";
 import { toast } from "sonner";
-import { ProtectedRoute } from "@/components/protected-route";
 
 function LandingPageContent() {
   const router = useRouter();
@@ -129,10 +128,4 @@ function LandingPageContent() {
   );
 }
 
-export default function LandingPage() {
-  return (
-    <ProtectedRoute>
-      <LandingPageContent />
-    </ProtectedRoute>
-  );
-}
+export default LandingPageContent;

@@ -128,10 +128,8 @@ export const resultsApi = baseApi.injectEndpoints({
     }),
 
     // Get test history
-    getTestHistory: builder.query<TestHistory[], void>({
+    getTestHistory: builder.query<TestHistoryResponse, void>({
       query: () => "/test-history",
-      transformResponse: (response: TestHistoryResponse) =>
-        response.testResults,
       providesTags: ["History"],
     }),
 

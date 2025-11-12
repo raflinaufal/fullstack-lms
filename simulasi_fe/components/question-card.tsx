@@ -67,19 +67,24 @@ export function QuestionCard({
 
       {/* Pilihan Jawaban */}
       <div className="space-y-3">
-        {options.map((option, index) => (
-          <button
-            key={index}
-            onClick={() => onSelectAnswer(option)}
-            className={`w-full p-4 text-left border-2 rounded-lg transition-all ${
-              selectedAnswer === option
-                ? "border-primary-orange bg-btn-light hover:border-btn-light-hover"
-                : "border-blue-200 bg-white hover:border-gray-300"
-            }`}
-          >
-            <span className="font-medium text-gray-800">{option}</span>
-          </button>
-        ))}
+        {options.map((option, index) => {
+          const optionLabel = String.fromCharCode(65 + index); // A, B, C, D, ...
+          return (
+            <button
+              key={index}
+              onClick={() => onSelectAnswer(option)}
+              className={`w-full p-4 text-left border-2 rounded-lg transition-all ${
+                selectedAnswer === option
+                  ? "border-primary-orange bg-btn-light hover:border-btn-light-hover"
+                  : "border-blue-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <span className="font-medium text-gray-800">
+                {optionLabel}. {option}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

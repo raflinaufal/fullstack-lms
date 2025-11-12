@@ -8,6 +8,7 @@ export interface SubmitConfirmationDialogProps {
   onConfirm: () => void;
   unansweredCount?: number;
   totalQuestions?: number;
+  unansweredQuestions?: number[];
 }
 
 export function SubmitConfirmationDialog({
@@ -16,6 +17,7 @@ export function SubmitConfirmationDialog({
   onConfirm,
   unansweredCount = 0,
   totalQuestions = 0,
+  unansweredQuestions = [],
 }: SubmitConfirmationDialogProps) {
   if (!isOpen) return null;
 
@@ -51,19 +53,15 @@ export function SubmitConfirmationDialog({
           )}
         </div>
 
-        {/* Question Status Grid */}
-        {totalQuestions > 0 && (
+        {/* Question Status Grid - Only show unanswered questions */}
+        {unansweredCount > 0 && unansweredQuestions.length > 0 && (
           <div className="grid grid-cols-5 gap-2 mb-6">
-            {Array.from({ length: Math.min(totalQuestions, 20) }, (_, i) => (
+            {unansweredQuestions.map((questionNumber) => (
               <div
-                key={i + 1}
-                className={`w-8 h-8 rounded text-xs font-medium flex items-center justify-center ${
-                  i < totalQuestions - unansweredCount
-                    ? "bg-primary-orange text-white"
-                    : "bg-gray-300 text-gray-600"
-                }`}
+                key={questionNumber}
+                className="w-8 h-8 rounded text-xs font-medium flex items-center justify-center bg-gray-300 text-gray-600"
               >
-                {i + 1}
+                {questionNumber}
               </div>
             ))}
           </div>

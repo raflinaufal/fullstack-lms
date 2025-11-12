@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ProtectedRoute } from "@/components/protected-route";
 import {
   useGetExamReviewQuery,
   useShareExamResultMutation,
@@ -585,10 +584,4 @@ function ResultPageContent() {
   );
 }
 
-export default function ResultPage() {
-  return (
-    <ProtectedRoute>
-      <ResultPageContent />
-    </ProtectedRoute>
-  );
-}
+export default ResultPageContent;

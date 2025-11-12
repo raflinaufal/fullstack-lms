@@ -25,7 +25,7 @@ export function ExamNavigation({
       <button
         onClick={onPrevious}
         disabled={currentQuestion === 1}
-        className={`flex items-center justify-center gap-2 px-6 py-3 font-semibold text-white rounded-full transition-transform duration-150 w-full sm:w-auto 
+        className={`flex items-center justify-center gap-2 px-6 py-3 font-semibold text-white rounded-full transition-transform duration-150 w-fit 
           ${
             currentQuestion === 1
               ? "bg-gray-400 disabled:cursor-not-allowed"
@@ -39,7 +39,7 @@ export function ExamNavigation({
       {/* Tombol Selanjutnya / Kumpulkan */}
       <button
         onClick={isLastQuestion ? onSubmit : onNext}
-        className={`flex items-center justify-center gap-2 px-4 py-3 font-semibold text-white rounded-full transition-transform duration-150 w-full sm:w-auto 
+        className={`flex items-center justify-center gap-2 px-4 py-3 font-semibold text-white rounded-full transition-transform duration-150 w-fit 
           ${
             isLastQuestion
               ? "bg-green-600 hover:scale-105"

@@ -7,7 +7,6 @@ import { QuestionGridDialog } from "@/components/question-grid-dialog";
 import { SubmitConfirmationDialog } from "@/components/submit-confirmation-dialog";
 import { SuccessDialog } from "@/components/success-dialog";
 import { ExamNavigation } from "@/components/exam-navigation";
-import { ProtectedRoute } from "@/components/protected-route";
 import { useGetExamQuestionsQuery } from "@/lib/redux/api/examsApi";
 import { useSubmitExamResultMutation } from "@/lib/redux/api/resultsApi";
 import { useAppSelector } from "@/lib/redux/hooks";
@@ -78,33 +77,13 @@ function ExamPageContent() {
         end_time: new Date().toISOString(),
       };
 
-      console.log("=== SUBMIT EXAM DEBUG ===");
-      console.log("Payload being sent to API:", payload);
-      console.log("Total questions:", examData.questions.length);
-      console.log("Answers count:", answers.length);
-      console.log("Selected answers:", selectedAnswers);
-      console.log("Answers array:", answers);
-      console.log("========================");
-
       const result = await submitExam(payload).unwrap();
-
-      console.log("=== SUBMIT SUCCESS ===");
-      console.log("API Response:", result);
-      console.log("Result ID:", result.result.id);
-      console.log("=====================");
 
       // Store result ID for review page
       sessionStorage.setItem("lastExamResultId", result.result.id.toString());
 
       setShowSuccess(true);
     } catch (error: any) {
-      console.error("=== SUBMIT ERROR ===");
-      console.error("Full error object:", error);
-      console.error("Error status:", error.status);
-      console.error("Error data:", error.data);
-      console.error("Error message:", error.data?.message);
-      console.error("===================");
-
       toast.error("Failed to submit exam", {
         description: error.data?.message || "Please try again",
       });
@@ -164,6 +143,12 @@ function ExamPageContent() {
   const answeredQuestions = Object.keys(selectedAnswers).map(Number);
   const unansweredCount = examData.questions.length - answeredQuestions.length;
 
+  // Get unanswered question numbers
+  const unansweredQuestions = examData.questions
+    .map((q, index) => ({ id: q.id, number: index + 1 }))
+    .filter((q) => !answeredQuestions.includes(q.id))
+    .map((q) => q.number);
+
   // Additional safety check - should not reach here if examData is null
   if (!examData?.exam || !examData?.questions) {
     return (
@@ -197,26 +182,31 @@ function ExamPageContent() {
           <div className="flex flex-col gap-4 p-4 transition-all border border-blue-400 md:flex-row md:items-center md:justify-between md:p-5 bg-background-light rounded-2xl hover:shadow-md">
             {/* Kiri: Icon + teks */}
             <div className="flex flex-col gap-3 text-center md:flex-row md:items-center md:text-left">
-              <div className="flex items-center justify-center p-3 text-white bg-[#FFEADE] rounded-full">
-                <FileText className="w-6 h-6 text-primary-orange " />
+              <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center p-3 rounded-full bg-[#FFEADE]">
+                  <FileText className="w-6 h-6 text-primary-orange" />
+                </div>
               </div>
+
               <div>
                 <h1 className="text-lg font-semibold text-gray-900 md:text-xl">
-                  {examData.exam.title}
+                  {examData.exam.class?.title}
                 </h1>
                 <p className="text-sm text-gray-700">
-                  {examData.exam.class?.subject} - {examData.exam.class?.grade}
+                  {examData.exam.class?.subtitle}
                 </p>
               </div>
             </div>
 
             {/* Kanan: Tombol */}
-            <button
-              onClick={() => setShowQuestionGrid(true)}
-              className="flex items-center justify-center w-full gap-2 px-4 py-2 font-semibold text-orange-600 transition-colors bg-orange-100 rounded-full hover:bg-orange-200 md:w-auto"
-            >
-              Daftar Soal <Grid className="w-4 h-4" />
-            </button>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => setShowQuestionGrid(true)}
+                className="flex items-center justify-center gap-2 px-4 py-2 font-semibold text-orange-600 transition-colors bg-orange-100 rounded-full w-fit hover:bg-orange-200 md:w-auto"
+              >
+                Daftar Soal <Grid className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -238,6 +228,7 @@ function ExamPageContent() {
           isOpen={showSubmitConfirm}
           unansweredCount={unansweredCount}
           totalQuestions={examData.questions.length}
+          unansweredQuestions={unansweredQuestions}
           onConfirm={handleConfirmSubmit}
           onClose={() => setShowSubmitConfirm(false)}
         />
@@ -261,9 +252,7 @@ function ExamPageContent() {
             stimulusText={currentQuestionData.stimulus_text || null}
             questionAfterImage={undefined}
             options={
-              currentQuestionData.options?.map(
-                (opt) => `${opt.option_label}. ${opt.option_text}`
-              ) || []
+              currentQuestionData.options?.map((opt) => opt.option_text) || []
             }
             stimulusImage={currentQuestionData.stimulus_image || undefined}
             selectedAnswer={selectedAnswers[currentQuestionData.id]}
@@ -285,10 +274,4 @@ function ExamPageContent() {
   );
 }
 
-export default function ExamPage() {
-  return (
-    <ProtectedRoute>
-      <ExamPageContent />
-    </ProtectedRoute>
-  );
-}
+export default ExamPageContent;

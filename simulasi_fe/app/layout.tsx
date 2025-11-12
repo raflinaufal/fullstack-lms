@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { ReduxProvider } from "@/lib/redux/provider";
+import { RouteGuard } from "@/components/route-guard";
 import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
@@ -24,7 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
         <ReduxProvider>
-          {children}
+          <RouteGuard>{children}</RouteGuard>
           <Toaster />
         </ReduxProvider>
       </body>
