@@ -75,6 +75,21 @@ export interface TestHistoryResponse {
   testResults: TestHistory[];
 }
 
+export interface ShareResultRequest {
+  result_id: number;
+  school_name: string;
+  grade: string;
+  email: string;
+}
+
+export interface ShareResultResponse {
+  message: string;
+  data: {
+    email: string;
+    sent_at: string;
+  };
+}
+
 export const resultsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Submit exam result
@@ -125,6 +140,15 @@ export const resultsApi = baseApi.injectEndpoints({
       query: (id) => `/test-history/${id}`,
       providesTags: (_result, _error, id) => [{ type: "History", id }],
     }),
+
+    // Share exam result via email
+    shareExamResult: builder.mutation<ShareResultResponse, ShareResultRequest>({
+      query: (data) => ({
+        url: "/exam-results/share",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -134,4 +158,5 @@ export const {
   useGetExamReviewQuery,
   useGetTestHistoryQuery,
   useGetTestHistoryByIdQuery,
+  useShareExamResultMutation,
 } = resultsApi;

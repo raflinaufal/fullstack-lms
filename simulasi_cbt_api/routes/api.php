@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/exam-results', [ExamResultController::class, 'store']);
     Route::get('/exam-results/{id}', [ExamResultController::class, 'show']);
     Route::get('/exam-results/{id}/review', [ExamResultController::class, 'getReview']);
+    Route::post('/exam-results/share', [ExamResultController::class, 'shareResult']);
 });
 
 // Test History routes

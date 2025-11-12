@@ -5,7 +5,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProtectedRoute } from "@/components/protected-route";
-import { useGetExamReviewQuery } from "@/lib/redux/api/resultsApi";
+import {
+  useGetExamReviewQuery,
+  useShareExamResultMutation,
+} from "@/lib/redux/api/resultsApi";
+import { SuccessDialog } from "@/components/popups";
 import { FileText, Loader2 } from "lucide-react";
 
 function ResultPageContent() {
@@ -33,7 +37,87 @@ function ResultPageContent() {
     error,
   } = useGetExamReviewQuery(resultId!, { skip: !resultId });
 
+  const [shareExamResult] = useShareExamResultMutation();
   const [selectedQuestion, setSelectedQuestion] = useState<number>(1);
+
+  // State for share form
+  const [shareForm, setShareForm] = useState({
+    schoolName: "",
+    grade: "",
+    email: "",
+  });
+  const [isSharing, setIsSharing] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleShareFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShareForm((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleShareSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validation
+    const newErrors: Record<string, string> = {};
+
+    if (!shareForm.schoolName.trim()) {
+      newErrors.schoolName = "Nama sekolah harus diisi";
+    }
+
+    if (!shareForm.grade.trim()) {
+      newErrors.grade = "Kelas harus diisi";
+    }
+
+    if (!shareForm.email.trim()) {
+      newErrors.email = "Email harus diisi";
+    } else if (!/\S+@\S+\.\S+/.test(shareForm.email)) {
+      newErrors.email = "Format email tidak valid";
+    }
+
+    // If there are errors, set them and return
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    if (!resultId) {
+      setErrors({ email: "Result ID tidak ditemukan" });
+      return;
+    }
+
+    setIsSharing(true);
+    setErrors({}); // Clear all errors
+
+    try {
+      await shareExamResult({
+        result_id: resultId,
+        school_name: shareForm.schoolName,
+        grade: shareForm.grade,
+        email: shareForm.email,
+      }).unwrap();
+
+      // Show success dialog
+      setShowSuccessDialog(true);
+
+      // Reset form
+      setShareForm({ schoolName: "", grade: "", email: "" });
+    } catch (error: any) {
+      console.error("Share result error:", error);
+
+      // Show error message below email field
+      setErrors({
+        email:
+          error?.data?.message || "Gagal membagikan nilai. Silakan coba lagi.",
+      });
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   // Loading state
   if (isLoading || !resultId) {
@@ -147,16 +231,32 @@ function ResultPageContent() {
                 </h2>
               </div>
             </div>
-            <form className="flex flex-col flex-1 gap-3">
+            <form
+              className="flex flex-col flex-1 gap-3"
+              onSubmit={handleShareSubmit}
+            >
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] font-medium text-gray-600 sm:text-xs">
                   Nama sekolah
                 </label>
                 <input
                   type="text"
+                  name="schoolName"
                   placeholder="Masukkan nama sekolah"
-                  className="px-3 py-2 text-xs transition bg-gray-100 border border-gray-200 rounded-lg sm:text-sm focus:outline-none focus:border-orange-400 focus:bg-white"
+                  value={shareForm.schoolName}
+                  onChange={handleShareFormChange}
+                  disabled={isSharing}
+                  className={`px-3 py-2 text-xs transition bg-gray-100 border rounded-lg sm:text-sm focus:outline-none focus:bg-white disabled:opacity-50 ${
+                    errors.schoolName
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-200 focus:border-orange-400"
+                  }`}
                 />
+                {errors.schoolName && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.schoolName}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] font-medium text-gray-600 sm:text-xs">
@@ -164,9 +264,20 @@ function ResultPageContent() {
                 </label>
                 <input
                   type="text"
+                  name="grade"
                   placeholder="Masukkan kelas"
-                  className="px-3 py-2 text-xs transition bg-gray-100 border border-gray-200 rounded-lg sm:text-sm focus:outline-none focus:border-orange-400 focus:bg-white"
+                  value={shareForm.grade}
+                  onChange={handleShareFormChange}
+                  disabled={isSharing}
+                  className={`px-3 py-2 text-xs transition bg-gray-100 border rounded-lg sm:text-sm focus:outline-none focus:bg-white disabled:opacity-50 ${
+                    errors.grade
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-200 focus:border-orange-400"
+                  }`}
                 />
+                {errors.grade && (
+                  <p className="mt-1 text-xs text-red-500">{errors.grade}</p>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] font-medium text-gray-600 sm:text-xs">
@@ -174,13 +285,35 @@ function ResultPageContent() {
                 </label>
                 <input
                   type="email"
+                  name="email"
                   placeholder="Masukkan alamat email"
-                  className="px-3 py-2 text-xs transition bg-gray-100 border border-gray-200 rounded-lg sm:text-sm focus:outline-none focus:border-orange-400 focus:bg-white"
+                  value={shareForm.email}
+                  onChange={handleShareFormChange}
+                  disabled={isSharing}
+                  className={`px-3 py-2 text-xs transition bg-gray-100 border rounded-lg sm:text-sm focus:outline-none focus:bg-white disabled:opacity-50 ${
+                    errors.email
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-200 focus:border-orange-400"
+                  }`}
                 />
+                {errors.email && (
+                  <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+                )}
               </div>
               <div className="flex justify-end pt-2">
-                <Button className="px-6 py-2 text-xs text-white bg-orange-500 rounded-full shadow-sm sm:text-sm hover:bg-orange-600">
-                  Bagikan
+                <Button
+                  type="submit"
+                  disabled={isSharing}
+                  className="px-6 py-2 text-xs text-white bg-orange-500 rounded-full shadow-sm sm:text-sm hover:bg-orange-600 disabled:opacity-50"
+                >
+                  {isSharing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Mengirim...
+                    </>
+                  ) : (
+                    "Bagikan"
+                  )}
                 </Button>
               </div>
             </form>
@@ -418,6 +551,14 @@ function ResultPageContent() {
           </div>
         </div>
       </section>
+
+      {/* Success Dialog */}
+      <SuccessDialog
+        isOpen={showSuccessDialog}
+        onClose={() => setShowSuccessDialog(false)}
+        title="Nilai berhasil dibagikan!"
+        message="Sekarang saatnya belajar lebih giat untuk nilai yang lebih tinggi!"
+      />
     </main>
   );
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ExamResultResource;
 use App\Http\Resources\QuestionReviewResource;
+use App\Http\Requests\ShareResultRequest;
+use App\Mail\ShareResultMail;
 use App\Models\ExamResult;
 use App\Models\QuestionReview;
 use App\Models\Question;
@@ -12,6 +14,7 @@ use App\Models\TestHistory;
 use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class ExamResultController extends Controller
@@ -216,5 +219,66 @@ class ExamResultController extends Controller
             'result' => new ExamResultResource($examResult),
             'reviews' => $reviews,
         ]);
+    }
+
+    public function shareResult(ShareResultRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            // Get exam result with relations
+            $examResult = ExamResult::with(['exam.class', 'user'])
+                ->findOrFail($validated['result_id']);
+
+            // Get question reviews
+            $questionReviews = QuestionReview::where('exam_result_id', $examResult->id)->get();
+            $totalQuestions = $questionReviews->count();
+            $correctAnswers = $questionReviews->where('is_correct', true)->count();
+
+            // Prepare data for email
+            $resultData = [
+                'user_name' => $examResult->user->name ?? 'Guest',
+                'exam_title' => $examResult->exam->title,
+                'score' => $examResult->score,
+                'total_questions' => $totalQuestions,
+                'correct_answers' => $correctAnswers,
+                'passing_score' => $examResult->exam->passing_score ?? 0,
+                'status' => $examResult->grade === 'F' ? 'Tidak Lulus' : 'Lulus',
+                'feedback' => $examResult->feedback,
+            ];
+
+            // Send email
+            Mail::to($validated['email'])->send(
+                new ShareResultMail(
+                    $resultData,
+                    $validated['school_name'],
+                    $validated['grade']
+                )
+            );
+
+            Log::info('Share result email sent', [
+                'result_id' => $examResult->id,
+                'email' => $validated['email'],
+                'school' => $validated['school_name'],
+            ]);
+
+            return response()->json([
+                'message' => 'Hasil ujian berhasil dibagikan ke email',
+                'data' => [
+                    'email' => $validated['email'],
+                    'sent_at' => now()->toISOString(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to share result', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Gagal membagikan hasil ujian',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
