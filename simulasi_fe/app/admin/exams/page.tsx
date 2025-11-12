@@ -179,57 +179,64 @@ export default function ExamsPage() {
           <CardTitle>Daftar Ujian</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead>Kelas</TableHead>
-                <TableHead>Mata Pelajaran</TableHead>
-                <TableHead>Jumlah Soal</TableHead>
-                <TableHead>Durasi</TableHead>
-                <TableHead>Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {exams.length > 0 ? (
-                exams.map((exam) => (
-                  <TableRow key={exam.id}>
-                    <TableCell>{exam.id}</TableCell>
-                    <TableCell className="font-medium">{exam.title}</TableCell>
-                    <TableCell>{exam.class?.title}</TableCell>
-                    <TableCell>{exam.subject}</TableCell>
-                    <TableCell>{exam.total_questions}</TableCell>
-                    <TableCell>{exam.duration} menit</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleOpenDialog(exam)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDelete(exam.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Judul</TableHead>
+                  <TableHead>Kelas</TableHead>
+                  <TableHead>Mata Pelajaran</TableHead>
+                  <TableHead>Jumlah Soal</TableHead>
+                  <TableHead>Durasi</TableHead>
+                  <TableHead>Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {exams.length > 0 ? (
+                  exams.map((exam) => (
+                    <TableRow key={exam.id}>
+                      <TableCell>{exam.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {exam.title}
+                      </TableCell>
+                      <TableCell>{exam.class?.title}</TableCell>
+                      <TableCell>{exam.subject}</TableCell>
+                      <TableCell>{exam.total_questions}</TableCell>
+                      <TableCell>{exam.duration} menit</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenDialog(exam)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(exam.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-gray-500"
+                    >
+                      Belum ada data ujian
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-gray-500">
-                    Belum ada data ujian
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

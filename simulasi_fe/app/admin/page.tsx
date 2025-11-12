@@ -3,6 +3,7 @@
 import { useGetClassesQuery } from "@/lib/redux/api/adminApi";
 import { useGetExamsQuery } from "@/lib/redux/api/adminApi";
 import { useGetUsersQuery } from "@/lib/redux/api/adminApi";
+import { useGetQuestionsQuery } from "@/lib/redux/api/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, FileQuestion, Users, BarChart3 } from "lucide-react";
 
@@ -10,13 +11,18 @@ export default function AdminDashboard() {
   const { data: classesData, isLoading: classesLoading } = useGetClassesQuery();
   const { data: examsData, isLoading: examsLoading } = useGetExamsQuery();
   const { data: usersData, isLoading: usersLoading } = useGetUsersQuery();
+  const { data: questionsData, isLoading: questionsLoading } =
+    useGetQuestionsQuery({});
 
   // Extract arrays from wrapped response - ensure they are arrays
   const classes = Array.isArray(classesData?.data) ? classesData.data : [];
   const exams = Array.isArray(examsData?.data) ? examsData.data : [];
   const users = Array.isArray(usersData?.data) ? usersData.data : [];
+  const questions = Array.isArray(questionsData?.data)
+    ? questionsData.data
+    : [];
 
-  if (classesLoading || examsLoading || usersLoading) {
+  if (classesLoading || examsLoading || usersLoading || questionsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-lg">Loading...</div>
@@ -48,7 +54,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Soal",
-      value: 0,
+      value: questions.length,
       icon: BarChart3,
       color: "text-orange-600",
       bgColor: "bg-orange-100",

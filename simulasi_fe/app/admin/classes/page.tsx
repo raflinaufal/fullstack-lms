@@ -142,60 +142,65 @@ export default function ClassesPage() {
           <CardTitle>Daftar Kelas</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead>Subjudul</TableHead>
-                <TableHead>Mata Pelajaran</TableHead>
-                <TableHead>Tingkat</TableHead>
-                <TableHead>Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {classes.length > 0 ? (
-                classes.map((cls) => (
-                  <TableRow key={cls.id}>
-                    <TableCell>{cls.id}</TableCell>
-                    <TableCell className="font-medium">{cls.title}</TableCell>
-                    <TableCell>{cls.subtitle}</TableCell>
-                    <TableCell>{cls.subject}</TableCell>
-                    <TableCell>{cls.grade}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleOpenDialog(cls)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDelete(cls.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Judul</TableHead>
+                  <TableHead>Subjudul</TableHead>
+                  <TableHead>Mata Pelajaran</TableHead>
+                  <TableHead>Tingkat</TableHead>
+                  <TableHead>Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {classes.length > 0 ? (
+                  classes.map((cls) => (
+                    <TableRow key={cls.id}>
+                      <TableCell>{cls.id}</TableCell>
+                      <TableCell className="font-medium">{cls.title}</TableCell>
+                      <TableCell>{cls.subtitle}</TableCell>
+                      <TableCell>{cls.subject}</TableCell>
+                      <TableCell>{cls.grade}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenDialog(cls)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(cls.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-gray-500"
+                    >
+                      Belum ada data kelas
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-500">
-                    Belum ada data kelas
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingClass ? "Edit Kelas" : "Tambah Kelas Baru"}

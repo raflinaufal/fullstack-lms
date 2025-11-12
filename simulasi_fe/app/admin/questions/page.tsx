@@ -259,61 +259,66 @@ export default function QuestionsPage() {
           <CardTitle>Daftar Soal</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Soal</TableHead>
-                <TableHead>Ujian</TableHead>
-                <TableHead>Jawaban Benar</TableHead>
-                <TableHead>Jumlah Opsi</TableHead>
-                <TableHead>Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {questions.length > 0 ? (
-                questions.map((question) => (
-                  <TableRow key={question.id}>
-                    <TableCell>{question.id}</TableCell>
-                    <TableCell className="max-w-md">
-                      <div className="truncate">{question.question_text}</div>
-                    </TableCell>
-                    <TableCell>{question.exam?.title}</TableCell>
-                    <TableCell className="font-medium">
-                      {question.correct_answer}
-                    </TableCell>
-                    <TableCell>{question.options?.length || 0}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleOpenDialog(question)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDelete(question.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Soal</TableHead>
+                  <TableHead>Ujian</TableHead>
+                  <TableHead>Jawaban Benar</TableHead>
+                  <TableHead>Jumlah Opsi</TableHead>
+                  <TableHead>Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {questions.length > 0 ? (
+                  questions.map((question) => (
+                    <TableRow key={question.id}>
+                      <TableCell>{question.id}</TableCell>
+                      <TableCell className="max-w-md">
+                        <div className="truncate">{question.question_text}</div>
+                      </TableCell>
+                      <TableCell>{question.exam?.title}</TableCell>
+                      <TableCell className="font-medium">
+                        {question.correct_answer}
+                      </TableCell>
+                      <TableCell>{question.options?.length || 0}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenDialog(question)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(question.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-gray-500"
+                    >
+                      {selectedExamId && selectedExamId !== "all"
+                        ? "Belum ada soal untuk ujian ini"
+                        : "Belum ada data soal"}
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-500">
-                    {selectedExamId && selectedExamId !== "all"
-                      ? "Belum ada soal untuk ujian ini"
-                      : "Belum ada data soal"}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
