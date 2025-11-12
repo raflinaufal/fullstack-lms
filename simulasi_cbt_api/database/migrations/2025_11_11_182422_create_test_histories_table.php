@@ -20,6 +20,8 @@ return new class extends Migration
             $table->decimal('percentage', 5, 2)->nullable();
             $table->string('status')->nullable(); // Changed from enum to string
             $table->string('exam_grade', 10)->nullable(); // Increased length
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
             $table->dateTime('completed_at')->nullable();
             $table->integer('duration_minutes')->nullable();
             $table->timestamps();

@@ -57,6 +57,8 @@ export interface TestHistory {
   percentage: number;
   status: "good" | "average" | "poor";
   exam_grade: string;
+  start_time: string;
+  end_time: string;
   completed_at: string;
   duration_minutes: number;
   created_at: string;

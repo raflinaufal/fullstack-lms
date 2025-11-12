@@ -161,6 +161,8 @@ class ExamResultController extends Controller
             'percentage' => $percentage,
             'status' => $status,
             'exam_grade' => $grade,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'completed_at' => $endTime,
             'duration_minutes' => $timeSpent,
         ]);

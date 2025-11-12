@@ -21,6 +21,8 @@ class TestHistoryResource extends JsonResource
             'percentage' => (float) $this->percentage,
             'status' => $this->status,
             'exam_grade' => $this->exam_grade,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
             'completed_at' => $this->completed_at,
             'duration_minutes' => $this->duration_minutes,
             'created_at' => $this->created_at,

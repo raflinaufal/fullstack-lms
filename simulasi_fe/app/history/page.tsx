@@ -10,10 +10,42 @@ function HistoryPageContent() {
   const router = useRouter();
   const { data: testResults, isLoading, error } = useGetTestHistoryQuery();
 
+  // Format date helper
+  const formatDateTime = (dateString: string) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const monthNames = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+      const month = monthNames[date.getMonth()];
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      // Format: "05 Maret 2025 - 16:00:00"
+      return `${day} ${month} ${year} - ${hours}:${minutes}:00`;
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-12 h-12 mx-auto mb-4">
             <Loader2 className="w-full h-full text-blue-600 animate-spin" />
@@ -27,20 +59,20 @@ function HistoryPageContent() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="max-w-md text-center">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
             <ChevronLeft className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">
             Failed to Load History
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="mb-6 text-gray-600">
             Unable to load test history. Please try again.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+            className="px-6 py-2 text-white bg-blue-600 rounded-full hover:bg-blue-700"
           >
             Back to Home
           </button>
@@ -90,16 +122,18 @@ function HistoryPageContent() {
           </div>
         ) : (
           <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
-            {testResults.map((result) => (
-              <TestScoreCard
-                key={result.id}
-                title={result.exam_title}
-                score={result.score}
-                description={`${result.subject} - ${result.grade} | Grade: ${result.exam_grade} (${result.status})`}
-                startTime={result.completed_at}
-                endTime={result.completed_at}
-              />
-            ))}
+            {testResults.map((result) => {
+              return (
+                <TestScoreCard
+                  key={result.id}
+                  title={result.exam_title}
+                  score={result.score}
+                  description={`${result.subject} - ${result.grade} | Grade: ${result.exam_grade} (${result.status})`}
+                  startTime={formatDateTime(result.start_time)}
+                  endTime={formatDateTime(result.end_time)}
+                />
+              );
+            })}
           </div>
         )}
       </section>

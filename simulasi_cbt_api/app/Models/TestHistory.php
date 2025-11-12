@@ -14,24 +14,26 @@ class TestHistory extends Model
     protected $fillable = [
         'exam_id',
         'user_id',
-        'title',
+        'exam_result_id',
+        'exam_title',
+        'subject',
+        'grade',
         'score',
-        'description',
+        'percentage',
+        'status',
+        'exam_grade',
         'start_time',
         'end_time',
-        'total_questions',
-        'correct_answers',
-        'duration',
-        'status',
-        'exam_date',
-        'chapter',
+        'completed_at',
+        'duration_minutes',
     ];
 
     protected $casts = [
         'score' => 'decimal:2',
+        'percentage' => 'decimal:2',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
-        'exam_date' => 'date',
+        'completed_at' => 'datetime',
     ];
 
     public function exam()
