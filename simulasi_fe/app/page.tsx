@@ -29,7 +29,6 @@ function LandingPageContent() {
       toast.success("Logged out successfully");
       router.push("/login");
     } catch (error) {
-      // Even if API call fails, clear local state
       dispatch(logout());
       router.push("/login");
     }
@@ -58,7 +57,7 @@ function LandingPageContent() {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-white">
-      {/* Logout Button - Fixed Position */}
+      {/* Header User + Logout */}
       <div className="fixed flex items-center gap-3 top-4 right-4">
         <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full shadow-sm">
           <User className="w-4 h-4 text-gray-600" />
@@ -78,9 +77,9 @@ function LandingPageContent() {
       </div>
 
       {/* Card Utama */}
-      <div className="w-full max-w-2xl p-6 bg-blue-100 border border-blue-200 shadow-sm rounded-3xl md:p-8">
+      <div className="w-full max-w-md p-6 bg-blue-100 border border-blue-200 shadow-sm rounded-3xl md:p-8">
         {/* Inner Card */}
-        <div className="p-6 border border-blue-400 bg-blue-80 rounded-2xl md:p-8 ">
+        <div className="p-6 border border-blue-400 bg-blue-80 rounded-2xl md:p-8">
           {/* Header Icon */}
           <div className="flex justify-center mb-6">
             <div className="flex items-center justify-center w-16 h-16 bg-orange-200 rounded-full">
@@ -89,27 +88,26 @@ function LandingPageContent() {
           </div>
 
           {/* Title & Subtitle */}
-          <h1 className="mb-2 text-2xl font-bold text-center text-gray-900">
+          <h1 className="mb-2 font-bold text-center text-gray-900 md:text-2xl">
             {isLoading ? "Loading..." : firstClass?.title || "Simulasi CBT"}
           </h1>
-          <p className="text-sm text-center text-gray-600">
+          <p className="text-[10px] gray-600 text-center md:text-sm">
             {isLoading
               ? "Memuat data..."
               : firstClass?.subtitle || "Computer Based Test"}
           </p>
 
           {/* Tombol Navigasi */}
-          <div className="flex flex-col justify-center gap-4 mt-8 sm:flex-row">
+          <div className="flex flex-row justify-center gap-4 mt-8 flex-nowrap">
             {navigation.buttons.map((button) => (
-              <Link href={button.route} className="flex-1" key={button.id}>
+              <Link href={button.route} key={button.id}>
                 <Button
-                  className={`w-full rounded-full py-4 px-6 text-base font-semibold flex items-center justify-center gap-2 transition-transform hover:scale-105 ${
+                  className={`rounded-full md:py-4 md:px-6 text-sm md:text-base font-semibold flex items-center justify-center gap-2 transition-transform hover:scale-105 ${
                     button.type === "outline"
-                      ? "bg-orange-100 text-orange-600 border-2  hover:bg-orange-200"
+                      ? "bg-orange-100 text-orange-600 border-2 hover:bg-orange-200"
                       : "bg-primary-orange hover:bg-primary-orange/80 text-white border-0"
                   }`}
                 >
-                  {/* Jika button.id === 'history', icon di kanan */}
                   {button.id === "history" ? (
                     <>
                       <span>{button.label}</span>

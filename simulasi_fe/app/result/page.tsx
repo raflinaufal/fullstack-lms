@@ -9,6 +9,7 @@ import {
   useGetExamReviewQuery,
   useShareExamResultMutation,
 } from "@/lib/redux/api/resultsApi";
+import { useGetClassesQuery } from "@/lib/redux/api/examsApi";
 import { SuccessDialog } from "@/components/popups";
 import { FileText, Loader2 } from "lucide-react";
 
@@ -37,8 +38,13 @@ function ResultPageContent() {
     error,
   } = useGetExamReviewQuery(resultId!, { skip: !resultId });
 
+  const { data: classesData } = useGetClassesQuery();
   const [shareExamResult] = useShareExamResultMutation();
   const [selectedQuestion, setSelectedQuestion] = useState<number>(1);
+
+  // Get first class for title and subtitle
+  const classes = Array.isArray(classesData) ? classesData : [];
+  const firstClass = classes[0];
 
   // State for share form
   const [shareForm, setShareForm] = useState({
@@ -162,6 +168,10 @@ function ResultPageContent() {
   const totalQuestions = reviews.length;
   const answeredCorrect = reviews.filter((r) => r.is_correct).length;
 
+  // Default passing score is 70
+  const passingScore = 70;
+  const isPassed = result.score >= passingScore;
+
   return (
     <main className="flex flex-col items-center min-h-screen px-3 py-6 bg-gray-100 sm:px-4 sm:py-10">
       {/* Header */}
@@ -175,10 +185,10 @@ function ResultPageContent() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">
-                Exam Result
+                {firstClass?.title || "Hasil Ujian"}
               </h1>
               <p className="text-xs text-gray-600 sm:text-sm">
-                Grade: {result.grade} - {result.status}
+                {firstClass?.subtitle || "Computer Based Test"}
               </p>
             </div>
           </div>
@@ -205,7 +215,9 @@ function ResultPageContent() {
               {result.score.toFixed(2)}
             </span>
             <p className="max-w-sm mt-3 text-xs leading-relaxed text-gray-600 sm:text-sm">
-              {result.feedback}
+              {isPassed
+                ? "Selamat kamu mendapatkan nilai yang bagus! Tingkatkan terus belajar kamu agar mendapatkan hasil yang maksimal"
+                : "Jangan menyerah! Terus belajar dan kerjakan latihan lebih banyak agar nilaimu meningkat. Kamu pasti bisa!"}
             </p>
 
             <div className="flex flex-col w-full gap-2 mt-6 sm:gap-3 sm:flex-row">
@@ -341,9 +353,19 @@ function ResultPageContent() {
               {reviews.map((review, i) => {
                 const questionNumber = i + 1;
 
-                let bgColor = "bg-gray-300";
-                if (review.is_correct) bgColor = "bg-green-500";
-                else if (review.is_correct === false) bgColor = "bg-red-500";
+                // Tentukan warna berdasarkan status jawaban
+                let bgColor = "bg-gray-300"; // Default: Tidak dijawab (abu-abu)
+
+                // Cek apakah user menjawab
+                if (review.user_answer && review.user_answer.trim() !== "") {
+                  // Jika dijawab, cek benar atau salah
+                  if (review.is_correct) {
+                    bgColor = "bg-green-500"; // Benar (hijau)
+                  } else {
+                    bgColor = "bg-red-500"; // Salah (merah)
+                  }
+                }
+                // Jika tidak dijawab, tetap abu-abu
 
                 const isSelected = selectedQuestion === questionNumber;
                 const borderClass = isSelected
