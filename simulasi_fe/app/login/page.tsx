@@ -72,8 +72,12 @@ export default function LoginPage() {
         description: `Welcome back, ${result.user.name}!`,
       });
 
-      // Redirect to home page
-      router.push("/");
+      // Redirect berdasarkan role
+      if (result.user.is_admin) {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
 

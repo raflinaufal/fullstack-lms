@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ExamController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\ExamResultController;
 use App\Http\Controllers\Api\TestHistoryController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,4 +57,30 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/test-history', [TestHistoryController::class, 'index']);
     Route::get('/test-history/{id}', [TestHistoryController::class, 'show']);
+});
+
+// Admin routes - requires authentication and admin role
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    // Classes management
+    Route::post('/classes', [ClassController::class, 'store']);
+    Route::put('/classes/{id}', [ClassController::class, 'update']);
+    Route::delete('/classes/{id}', [ClassController::class, 'destroy']);
+
+    // Exams management
+    Route::post('/exams', [ExamController::class, 'store']);
+    Route::put('/exams/{id}', [ExamController::class, 'update']);
+    Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
+
+    // Questions management
+    Route::get('/questions', [QuestionController::class, 'index']);
+    Route::post('/questions', [QuestionController::class, 'store']);
+    Route::put('/questions/{id}', [QuestionController::class, 'update']);
+    Route::delete('/questions/{id}', [QuestionController::class, 'destroy']);
+
+    // Users management
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
 });

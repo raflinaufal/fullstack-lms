@@ -7,16 +7,20 @@ import { FileText, LogOut, User } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/lib/redux/hooks";
 import { logout } from "@/lib/redux/slices/authSlice";
 import { useLogoutMutation } from "@/lib/redux/api/authApi";
+import { useGetClassesQuery } from "@/lib/redux/api/examsApi";
 import { toast } from "sonner";
 import { ProtectedRoute } from "@/components/protected-route";
-import landingData from "@/data/landing-data.json";
+
 
 function LandingPageContent() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const [logoutMutation] = useLogoutMutation();
-  const { landingPage } = landingData;
+  const { data: classesData, isLoading } = useGetClassesQuery();
+
+  // Ambil class pertama untuk ditampilkan di landing page
+  const firstClass = classesData?.[0];
 
   const handleLogout = async () => {
     try {
@@ -55,7 +59,7 @@ function LandingPageContent() {
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-white">
       {/* Logout Button - Fixed Position */}
-      <div className="fixed top-4 right-4 flex items-center gap-3">
+      <div className="fixed flex items-center gap-3 top-4 right-4">
         <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full shadow-sm">
           <User className="w-4 h-4 text-gray-600" />
           <span className="text-sm font-medium text-gray-700">
@@ -86,10 +90,10 @@ function LandingPageContent() {
 
           {/* Title & Subtitle */}
           <h1 className="mb-2 text-2xl font-bold text-center text-gray-900">
-            {landingPage.title}
+            {isLoading ? "Loading..." : firstClass?.title || "Simulasi CBT"}
           </h1>
           <p className="text-sm text-center text-gray-600">
-            {landingPage.subtitle}
+            {isLoading ? "Memuat data..." : firstClass?.subtitle || "Computer Based Test"}
           </p>
 
           {/* Tombol Navigasi */}
