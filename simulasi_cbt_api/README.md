@@ -1,294 +1,343 @@
-# Simulasi CBT API - Laravel 12 Backend
+# 🔌 Simulasi CBT - Backend API
 
-Backend API untuk aplikasi Computer-Based Test (CBT) menggunakan Laravel 12 dan Laravel Sanctum.
+Backend REST API menggunakan **Laravel 12** dengan **Laravel Sanctum** untuk autentikasi.
 
-## 🚀 Setup & Installation
+---
 
-### Prerequisites
+## � Tech Stack
 
--   PHP 8.2 atau lebih tinggi
--   Composer 2.7+
--   MySQL 8.0+
--   XAMPP (untuk MySQL server)
+-   **PHP** 8.2+
+-   **Laravel** 12.0
+-   **Laravel Sanctum** 4.2 (API Authentication)
+-   **MySQL** 8.0+
+-   **Composer** 2.7+
 
-### Installation Steps
+---
 
-1. **Install Dependencies**
+## 📋 Prasyarat
+
+```bash
+✅ PHP 8.2+
+✅ Composer 2.7+
+✅ MySQL 8.0+ / XAMPP
+✅ PHP Extensions: pdo_mysql, mbstring, openssl, json, xml, fileinfo
+```
+
+---
+
+## 🚀 Instalasi
+
+### 1. Install Dependencies
 
 ```bash
 composer install
 ```
 
-2. **Environment Configuration**
+### 2. Setup Environment
 
 ```bash
+# Windows PowerShell
+Copy-Item .env.example .env
+
+# Linux/Mac
 cp .env.example .env
+
+# Generate application key
 php artisan key:generate
 ```
 
-3. **Database Setup**
+### 3. Konfigurasi Database
 
--   Start XAMPP MySQL server
--   Database `simulasi_cbt` sudah dibuat otomatis
+Edit `.env`:
 
-4. **Run Migrations & Seeders**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=simulasi_cbt
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 4. Buat Database
+
+**Via phpMyAdmin:**
+
+-   Buka http://localhost/phpmyadmin
+-   Buat database: `simulasi_cbt`
+
+**Via Command:**
+
+```bash
+mysql -u root -e "CREATE DATABASE simulasi_cbt"
+```
+
+### 5. Jalankan Migration & Seeder
 
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-5. **Start Development Server**
+### 6. Jalankan Server
 
 ```bash
 php artisan serve
 ```
 
-Server akan berjalan di: `http://127.0.0.1:8000`
+Server: http://127.0.0.1:8000
 
-## 👤 Demo Accounts
+---
 
-Setelah menjalankan seeder, tersedia 2 akun demo:
-
-**Student Account:**
-
--   Email: `student@demo.com`
--   Password: `password`
-
-**Teacher Account:**
-
--   Email: `teacher@demo.com`
--   Password: `password`
-
-## 📊 Database Schema
-
-### Tables
-
-1. **users** - Data pengguna (student/teacher/admin)
-2. **exams** - Data ujian/paket soal
-3. **chapters** - Bab/topik soal
-4. **questions** - Soal ujian
-5. **exam_sessions** - Sesi ujian pengguna
-6. **exam_answers** - Jawaban pengguna per soal
-7. **test_results** - Hasil ujian
-8. **achievements** - Pencapaian pengguna
-9. **exam_shares** - Share hasil ujian via email
-
-## 🔌 API Endpoints
-
-Base URL: `http://127.0.0.1:8000/api`
-
-### Authentication Endpoints
-
-#### 1. Register
+## 👤 Akun Demo
 
 ```
-POST /auth/register
-Content-Type: application/json
+Student:
+Email: student@demo.com
+Password: password
 
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "password_confirmation": "password123",
-  "role": "student",
-  "school_name": "SMA Negeri 1",
-  "class": "XII IPA 1"
-}
+Admin/Teacher:
+Email: teacher@demo.com
+Password: password
 ```
 
-#### 2. Login
+---
 
-```
-POST /auth/login
+## � API Endpoints
+
+**Base URL:** `http://127.0.0.1:8000/api`
+
+### 🔓 Public
+
+| Method | Endpoint                   | Deskripsi       |
+| ------ | -------------------------- | --------------- |
+| POST   | `/register`                | Register user   |
+| POST   | `/login`                   | Login user      |
+| GET    | `/classes`                 | List kelas      |
+| GET    | `/exams`                   | List ujian      |
+| GET    | `/exams/{id}`              | Detail ujian    |
+| GET    | `/exams/{id}/instructions` | Instruksi ujian |
+| GET    | `/exams/{id}/questions`    | Soal ujian      |
+
+### 🔒 Protected (Require Token)
+
+| Method | Endpoint                    | Deskripsi       |
+| ------ | --------------------------- | --------------- |
+| POST   | `/logout`                   | Logout          |
+| GET    | `/user`                     | Current user    |
+| POST   | `/exam-results`             | Submit jawaban  |
+| GET    | `/exam-results/{id}`        | Detail hasil    |
+| GET    | `/exam-results/{id}/review` | Review jawaban  |
+| POST   | `/exam-results/share`       | Share via email |
+| GET    | `/test-history`             | Riwayat tes     |
+
+### 👑 Admin (Require Admin Role)
+
+| Method              | Endpoint           | Deskripsi      |
+| ------------------- | ------------------ | -------------- |
+| GET/POST/PUT/DELETE | `/admin/users`     | CRUD users     |
+| POST/PUT/DELETE     | `/admin/classes`   | CRUD classes   |
+| POST/PUT/DELETE     | `/admin/exams`     | CRUD exams     |
+| GET/POST/PUT/DELETE | `/admin/questions` | CRUD questions |
+
+---
+
+## 📝 Contoh Request
+
+### Login
+
+```bash
+POST /api/login
 Content-Type: application/json
 
 {
   "email": "student@demo.com",
   "password": "password"
 }
+
+Response:
+{
+  "success": true,
+  "data": {
+    "user": {...},
+    "token": "1|abc123..."
+  }
+}
 ```
 
-#### 3. Logout
+### Submit Exam
 
-```
-POST /auth/logout
-Authorization: Bearer {token}
-```
-
-#### 4. Get Current User
-
-```
-GET /auth/user
-Authorization: Bearer {token}
-```
-
-### Exam Endpoints
-
-#### 5. Get All Exams
-
-```
-GET /exams?subject=Matematika&grade=XII
-Authorization: Bearer {token}
-```
-
-#### 6. Get Exam Details
-
-```
-GET /exams/{id}
-Authorization: Bearer {token}
-```
-
-### Exam Session Endpoints
-
-#### 7. Start Exam Session
-
-```
-POST /exam-sessions/start
+```bash
+POST /api/exam-results
 Authorization: Bearer {token}
 Content-Type: application/json
 
 {
-  "exam_id": 1
+  "exam_id": 1,
+  "answers": [
+    {"question_id": 1, "selected_option_id": 1},
+    {"question_id": 2, "selected_option_id": 5}
+  ],
+  "time_spent": 1800
 }
 ```
 
-#### 8. Get Session Details
+---
+
+## � Database Schema
+
+### Tabel Utama
 
 ```
-GET /exam-sessions/{sessionId}
-Authorization: Bearer {token}
+users
+├── id, name, email, password, is_admin
+
+classes
+├── id, name, grade, description
+
+exams
+├── id, class_id, title, description, duration, total_score
+
+questions
+├── id, exam_id, question_text, stimulus_text, stimulus_image, explanation
+
+question_options
+├── id, question_id, option_text, is_correct
+
+exam_results
+├── id, user_id, exam_id, score, time_spent, correct_answers, wrong_answers
+
+question_reviews
+├── id, exam_result_id, question_id, selected_option_id, is_correct
+
+test_histories
+├── id, user_id, exam_id, exam_result_id, score, started_at, completed_at
+
+exam_instructions
+├── id, exam_id, instruction
 ```
-
-#### 9. Submit Exam
-
-```
-POST /exam-sessions/{sessionId}/submit
-Authorization: Bearer {token}
-```
-
-### Question, Answer, Result, History & Chapter Endpoints
-
-Lihat detail lengkap di dokumentasi API atau gunakan Postman/Insomnia untuk testing.
-
-## 🔐 Authentication
-
-API menggunakan **Laravel Sanctum** untuk autentikasi berbasis token.
-
-### Headers Required
-
-```
-Authorization: Bearer {your_token}
-Accept: application/json
-Content-Type: application/json
-```
-
-## 🎯 Grading System
-
-Nilai (Grade) ditentukan berdasarkan score:
-
--   **A**: ≥ 90
--   **B**: 80-89
--   **C**: 70-79
--   **D**: 60-69
--   **E**: < 60
-
-## ⚙️ CORS Configuration
-
-CORS sudah dikonfigurasi untuk:
-
--   Frontend URL: `http://localhost:3000`
--   Sanctum CSRF Cookie path
--   Supports credentials: `true`
-
-## 📁 Project Structure
-
-```
-simulasi_cbt_api/
-├── app/
-│   ├── Http/Controllers/Api/
-│   │   ├── AuthController.php
-│   │   ├── ExamController.php
-│   │   ├── ExamSessionController.php
-│   │   ├── QuestionController.php
-│   │   ├── AnswerController.php
-│   │   ├── ResultController.php
-│   │   ├── HistoryController.php
-│   │   └── ChapterController.php
-│   └── Models/
-├── config/cors.php
-├── database/
-│   ├── migrations/
-│   └── seeders/
-├── routes/api.php
-└── .env
-```
-
-## 📝 Environment Variables
-
-```env
-APP_NAME=SimulasiCBT
-DB_DATABASE=simulasi_cbt
-SANCTUM_STATEFUL_DOMAINS=localhost:3000
-FRONTEND_URL=http://localhost:3000
-```
-
-## 🔄 Sample Data
-
-Database seeder menyediakan:
-
--   2 User (student & teacher)
--   2 Exam (Matematika & Fisika)
--   3 Chapter
--   15 Question dengan jawaban lengkap
 
 ---
 
-**Version:** 1.0.0  
-**Laravel:** 12.0  
-**Last Updated:** November 10, 2025
+## 📁 Struktur Folder
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+app/
+├── Http/Controllers/Api/
+│   ├── AuthController.php
+│   ├── ClassController.php
+│   ├── ExamController.php
+│   ├── ExamResultController.php
+│   ├── QuestionController.php
+│   ├── TestHistoryController.php
+│   └── UserController.php
+├── Models/
+│   ├── User.php
+│   ├── ClassModel.php
+│   ├── Exam.php
+│   ├── Question.php
+│   ├── QuestionOption.php
+│   ├── ExamResult.php
+│   └── TestHistory.php
+└── Mail/
+    └── ShareResultMail.php
 
-## Learning Laravel
+database/
+├── migrations/
+└── seeders/
+    ├── UserSeeder.php
+    ├── ClassSeeder.php
+    ├── ExamSeeder.php
+    └── QuestionSeeder.php
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+routes/
+└── api.php
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ⚙️ Konfigurasi CORS
 
-## Laravel Sponsors
+Edit `config/cors.php`:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```php
+'allowed_origins' => [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+],
+'supports_credentials' => true,
+```
 
-### Premium Partners
+---
 
--   **[Vehikl](https://vehikl.com/)**
--   **[Tighten Co.](https://tighten.co)**
--   **[WebReinvent](https://webreinvent.com/)**
--   **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
--   **[64 Robots](https://64robots.com)**
--   **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
--   **[Cyber-Duck](https://cyber-duck.co.uk)**
--   **[DevSquad](https://devsquad.com/hire-laravel-developers)**
--   **[Jump24](https://jump24.co.uk)**
--   **[Redberry](https://redberry.international/laravel/)**
--   **[Active Logic](https://activelogic.com)**
--   **[byte5](https://byte5.de)**
--   **[OP.GG](https://op.gg)**
+## 🔧 Troubleshooting
 
-## Contributing
+**Database error:**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan migrate:fresh --seed
+```
 
-## Code of Conduct
+**Permission error:**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# Windows
+icacls storage /grant Users:F /t
 
-## Security Vulnerabilities
+# Linux/Mac
+chmod -R 775 storage bootstrap/cache
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Port sudah digunakan:**
 
-## License
+```bash
+php artisan serve --port=8001
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Test connection:**
+
+```bash
+php artisan tinker
+>>> DB::connection()->getPdo();
+```
+
+---
+
+## 📚 Commands
+
+```bash
+# Migrate & Seed
+php artisan migrate:fresh --seed
+
+# Cache
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Clear cache
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Run specific seeder
+php artisan db:seed --class=UserSeeder
+```
+
+---
+
+## 🚀 Production
+
+```bash
+# Optimize
+composer install --optimize-autoloader --no-dev
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Permissions
+chmod -R 775 storage bootstrap/cache
+```
+
+---
+
+**Developer:** [@raflinaufal](https://github.com/raflinaufal)  
+**Repository:** [fullstack-lms](https://github.com/raflinaufal/fullstack-lms)
