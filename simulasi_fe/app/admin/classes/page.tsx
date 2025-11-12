@@ -30,6 +30,15 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function ClassesPage() {
   const { data, isLoading, refetch } = useGetClassesQuery();
@@ -40,6 +49,15 @@ export default function ClassesPage() {
 
   // Extract array from wrapped response
   const classes = Array.isArray(data?.data) ? data.data : [];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Pagination logic
+  const totalPages = Math.ceil(classes.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedClasses = classes.slice(startIndex, endIndex);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<Class | null>(null);
@@ -82,12 +100,14 @@ export default function ClassesPage() {
         toast({
           title: "Berhasil",
           description: "Kelas berhasil diupdate",
+          variant: "success",
         });
       } else {
         await createClass(formData).unwrap();
         toast({
           title: "Berhasil",
           description: "Kelas berhasil dibuat",
+          variant: "success",
         });
       }
       setIsDialogOpen(false);
@@ -109,6 +129,7 @@ export default function ClassesPage() {
       toast({
         title: "Berhasil",
         description: "Kelas berhasil dihapus",
+        variant: "success",
       });
       refetch();
     } catch (error: any) {
@@ -155,8 +176,8 @@ export default function ClassesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {classes.length > 0 ? (
-                  classes.map((cls) => (
+                {paginatedClasses.length > 0 ? (
+                  paginatedClasses.map((cls) => (
                     <TableRow key={cls.id}>
                       <TableCell>{cls.id}</TableCell>
                       <TableCell className="font-medium">{cls.title}</TableCell>
@@ -196,6 +217,45 @@ export default function ClassesPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination */}
+          {classes.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <PaginationPrevious
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    className={
+                      currentPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </div>
+
+                <p className="text-sm text-gray-700">
+                  Menampilkan {startIndex + 1} -{" "}
+                  {Math.min(endIndex, classes.length)} dari {classes.length}{" "}
+                  kelas
+                </p>
+
+                <div>
+                  <PaginationNext
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

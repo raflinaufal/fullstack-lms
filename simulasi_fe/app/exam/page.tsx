@@ -257,7 +257,7 @@ function ExamPageContent() {
           <QuestionCard
             questionNumber={currentQuestion}
             title={currentQuestionData.question_text}
-            stimulusTitle={currentQuestionData.stimulus_text || null}
+            stimulusTitle={null}
             stimulusText={currentQuestionData.stimulus_text || null}
             questionAfterImage={undefined}
             options={

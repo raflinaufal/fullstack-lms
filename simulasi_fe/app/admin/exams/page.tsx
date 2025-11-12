@@ -119,12 +119,14 @@ export default function ExamsPage() {
         toast({
           title: "Berhasil",
           description: "Ujian berhasil diupdate",
+          variant: "success",
         });
       } else {
         await createExam(payload).unwrap();
         toast({
           title: "Berhasil",
           description: "Ujian berhasil dibuat",
+          variant: "success",
         });
       }
       setIsDialogOpen(false);
@@ -146,6 +148,7 @@ export default function ExamsPage() {
       toast({
         title: "Berhasil",
         description: "Ujian berhasil dihapus",
+        variant: "success",
       });
       refetch();
     } catch (error: any) {

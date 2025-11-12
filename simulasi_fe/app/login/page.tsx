@@ -101,27 +101,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 bg-blue-600 rounded-full">
             <Lock className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
             Welcome Back
           </h1>
           <p className="text-gray-600">Sign in to continue to Simulasi CBT</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="p-8 bg-white shadow-xl rounded-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <Input
                   id="email"
                   name="email"
@@ -142,7 +142,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <Input
                   id="password"
                   name="password"
@@ -158,7 +158,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -176,7 +176,7 @@ export default function LoginPage() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-11 text-base"
+              className="w-full text-base h-11"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -196,7 +196,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
+              <span className="px-4 text-gray-500 bg-white">
                 Don't have an account?
               </span>
             </div>
@@ -204,24 +204,47 @@ export default function LoginPage() {
 
           {/* Register Link */}
           <Link href="/register">
-            <Button variant="outline" className="w-full h-11 text-base">
+            <Button variant="outline" className="w-full text-base h-11">
               Create New Account
             </Button>
           </Link>
         </div>
 
         {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800 font-medium mb-2">
+        <div className="p-4 mt-6 border border-blue-200 rounded-lg bg-blue-50">
+          <p className="mb-3 text-sm font-medium text-blue-800">
             Demo Credentials:
           </p>
-          <div className="text-sm text-blue-700 space-y-1">
-            <p>
-              Email: <span className="font-mono">test@example.com</span>
-            </p>
-            <p>
-              Password: <span className="font-mono">password</span>
-            </p>
+          <div className="space-y-3">
+            {/* User Account */}
+            <div className="p-3 bg-white rounded-md">
+              <p className="mb-1 text-xs font-semibold text-blue-600 uppercase">
+                User Account
+              </p>
+              <div className="space-y-1 text-sm text-gray-700">
+                <p>
+                  Email: <span className="font-mono">test@example.com</span>
+                </p>
+                <p>
+                  Password: <span className="font-mono">password</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Admin Account */}
+            <div className="p-3 bg-white rounded-md">
+              <p className="mb-1 text-xs font-semibold text-blue-600 uppercase">
+                Admin Account
+              </p>
+              <div className="space-y-1 text-sm text-gray-700">
+                <p>
+                  Email: <span className="font-mono">admin@example.com</span>
+                </p>
+                <p>
+                  Password: <span className="font-mono">password</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -64,6 +64,7 @@ export const examsApi = baseApi.injectEndpoints({
     // Get all classes
     getClasses: builder.query<Class[], void>({
       query: () => "/classes",
+      transformResponse: (response: { data: Class[] }) => response.data,
       providesTags: ["Classes"],
     }),
 

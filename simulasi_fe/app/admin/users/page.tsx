@@ -87,12 +87,14 @@ export default function UsersPage() {
         toast({
           title: "Berhasil",
           description: "Pengguna berhasil diupdate",
+          variant: "success",
         });
       } else {
         await createUser(formData).unwrap();
         toast({
           title: "Berhasil",
           description: "Pengguna berhasil dibuat",
+          variant: "success",
         });
       }
       setIsDialogOpen(false);
@@ -114,6 +116,7 @@ export default function UsersPage() {
       toast({
         title: "Berhasil",
         description: "Pengguna berhasil dihapus",
+        variant: "success",
       });
       refetch();
     } catch (error: any) {

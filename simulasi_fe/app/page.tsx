@@ -11,7 +11,6 @@ import { useGetClassesQuery } from "@/lib/redux/api/examsApi";
 import { toast } from "sonner";
 import { ProtectedRoute } from "@/components/protected-route";
 
-
 function LandingPageContent() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -19,8 +18,9 @@ function LandingPageContent() {
   const [logoutMutation] = useLogoutMutation();
   const { data: classesData, isLoading } = useGetClassesQuery();
 
-  // Ambil class pertama untuk ditampilkan di landing page
-  const firstClass = classesData?.[0];
+  // Extract classes array and get first class for landing page
+  const classes = Array.isArray(classesData) ? classesData : [];
+  const firstClass = classes[0];
 
   const handleLogout = async () => {
     try {
@@ -93,7 +93,9 @@ function LandingPageContent() {
             {isLoading ? "Loading..." : firstClass?.title || "Simulasi CBT"}
           </h1>
           <p className="text-sm text-center text-gray-600">
-            {isLoading ? "Memuat data..." : firstClass?.subtitle || "Computer Based Test"}
+            {isLoading
+              ? "Memuat data..."
+              : firstClass?.subtitle || "Computer Based Test"}
           </p>
 
           {/* Tombol Navigasi */}

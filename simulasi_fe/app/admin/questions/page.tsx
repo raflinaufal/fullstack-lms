@@ -38,9 +38,21 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function QuestionsPage() {
   const [selectedExamId, setSelectedExamId] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const {
     data: questionsData,
     isLoading,
@@ -61,6 +73,18 @@ export default function QuestionsPage() {
     ? questionsData.data
     : [];
   const exams = Array.isArray(examsData?.data) ? examsData.data : [];
+
+  // Pagination logic
+  const totalPages = Math.ceil(questions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedQuestions = questions.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  const handleExamFilterChange = (value: string) => {
+    setSelectedExamId(value);
+    setCurrentPage(1);
+  };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -146,12 +170,14 @@ export default function QuestionsPage() {
         toast({
           title: "Berhasil",
           description: "Soal berhasil diupdate",
+          variant: "success",
         });
       } else {
         await createQuestion(payload).unwrap();
         toast({
           title: "Berhasil",
           description: "Soal berhasil dibuat",
+          variant: "success",
         });
       }
       setIsDialogOpen(false);
@@ -173,6 +199,7 @@ export default function QuestionsPage() {
       toast({
         title: "Berhasil",
         description: "Soal berhasil dihapus",
+        variant: "success",
       });
       refetch();
     } catch (error: any) {
@@ -236,7 +263,10 @@ export default function QuestionsPage() {
           <div className="flex items-end gap-4">
             <div className="flex-1">
               <Label>Filter berdasarkan Ujian</Label>
-              <Select value={selectedExamId} onValueChange={setSelectedExamId}>
+              <Select
+                value={selectedExamId}
+                onValueChange={handleExamFilterChange}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Semua ujian" />
                 </SelectTrigger>
@@ -263,17 +293,16 @@ export default function QuestionsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Soal</TableHead>
-                  <TableHead>Ujian</TableHead>
+                  <TableHead>Nama</TableHead>
+                  <TableHead>Soal Ujian</TableHead>
                   <TableHead>Jawaban Benar</TableHead>
                   <TableHead>Jumlah Opsi</TableHead>
                   <TableHead>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {questions.length > 0 ? (
-                  questions.map((question) => (
+                {paginatedQuestions.length > 0 ? (
+                  paginatedQuestions.map((question) => (
                     <TableRow key={question.id}>
                       <TableCell>{question.id}</TableCell>
                       <TableCell className="max-w-md">
@@ -319,6 +348,45 @@ export default function QuestionsPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination */}
+          {questions.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <PaginationPrevious
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    className={
+                      currentPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </div>
+
+                <p className="text-sm text-gray-700">
+                  Menampilkan {startIndex + 1} -{" "}
+                  {Math.min(endIndex, questions.length)} dari {questions.length}{" "}
+                  soal
+                </p>
+
+                <div>
+                  <PaginationNext
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
